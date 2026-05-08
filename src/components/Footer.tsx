@@ -1,4 +1,5 @@
 import React from 'react';
+import { Instagram } from 'lucide-react';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -15,12 +16,23 @@ export function Footer() {
         <a href="#" className="hover:text-white transition-colors">Privacidade</a>
       </div>
       
-      <a 
-        href="mailto:ola@site.com" 
-        className="text-blue-500 hover:text-blue-400 font-medium transition-colors"
-      >
-        Fale conosco
-      </a>
+      <div className="flex items-center gap-6">
+        <a 
+          href="https://www.instagram.com/harpia.ctv/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-gray-400 hover:text-pink-500 transition-colors"
+          title="Instagram"
+        >
+          <Instagram size={20} />
+        </a>
+        <a 
+          href="mailto:ola@site.com" 
+          className="text-blue-500 hover:text-blue-400 font-medium transition-colors"
+        >
+          Fale conosco
+        </a>
+      </div>
     </footer>
   );
 }
