@@ -20,12 +20,27 @@ export function VideoScroll() {
 
     if (videoRef.current) {
         videoRef.current.addEventListener('loadedmetadata', handleLoadedMetadata);
+        videoRef.current.addEventListener('canplay', handleLoadedMetadata);
         if (videoRef.current.readyState >= 1) handleLoadedMetadata();
+        
+        // Força o carregamento para dispositivos móveis
+        videoRef.current.load();
+        
+        // Hack para iOS: tentar dar play e depois pause para desbloquear o controle de frame (currentTime)
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            if (videoRef.current) videoRef.current.pause();
+          }).catch(() => {
+            // Autoplay bloqueado pelo navegador, ignorar
+          });
+        }
     }
     
     return () => {
         if (videoRef.current) {
             videoRef.current.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            videoRef.current.removeEventListener('canplay', handleLoadedMetadata);
         }
     }
   }, []);
