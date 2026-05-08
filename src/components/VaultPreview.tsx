@@ -30,12 +30,18 @@ export function VaultPreview() {
   const { scrollYProgress } = useScroll();
   const rotateTransform = useTransform(scrollYProgress, [0, 1], [0, 45]);
 
-  const resources = [
-    { name: 'Guia de Presença Digital', type: 'PDF', icon: BookOpen },
-    { name: 'Modelos de Mensagens (E-mail e WhatsApp)', type: 'DOC', icon: FileText },
-    { name: 'Planilha de Organização Semanal', type: 'XLS', icon: Download },
-    { name: 'Tutorial em Vídeo: Primeiros Passos', type: 'MP4', icon: PlayCircle }
+  // Para adicionar itens depois, basta colocar os objetos aqui dentro, por exemplo:
+  // { name: 'Guia de Presença Digital', type: 'PDF', icon: BookOpen }
+  const resources: { name: string, type: string, icon: any }[] = [
+    // { name: 'Guia de Presença Digital', type: 'PDF', icon: BookOpen },
+    // { name: 'Modelos de Mensagens (E-mail e WhatsApp)', type: 'DOC', icon: FileText },
+    // { name: 'Planilha de Organização Semanal', type: 'XLS', icon: Download },
+    // { name: 'Tutorial em Vídeo: Primeiros Passos', type: 'MP4', icon: PlayCircle }
   ];
+
+  if (resources.length === 0) {
+    return null;
+  }
 
   return (
     <section className="px-6 md:px-12 lg:px-24 py-32 bg-transparent relative overflow-hidden">
