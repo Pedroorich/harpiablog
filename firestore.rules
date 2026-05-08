@@ -1,0 +1,103 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Primitive Definitions
+    function isValidId(id) { 
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { 
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); 
+    }
+    
+    // Admins Collection
+    match /admins/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin()) && isValidId(userId);
+      
+      allow create: if isSignedIn() 
+                    && isValidId(userId)
+                    && request.auth.uid == userId 
+                    && request.auth.token.email == 'ph44608@gmail.com'
+                    && request.auth.token.email_verified == true
+                    && incoming().keys().hasAll(['email', 'createdAt']) 
+                    && incoming().keys().size() == 2
+                    && incoming().email == request.auth.token.email
+                    && incoming().createdAt == request.time;
+      
+      allow update, delete: if false;
+    }
+
+    // Posts Collection
+    match /posts/{postId} {
+      function isValidPost(data) {
+        return data.title is string && data.title.size() > 0 && data.title.size() <= 200
+            && data.excerpt is string && data.excerpt.size() <= 2000
+            && data.content is string && data.content.size() <= 500000
+            && data.category is string && data.category.size() > 0 && data.category.size() <= 100
+            && data.time is string && data.time.size() > 0 && data.time.size() <= 50
+            && data.createdAt is timestamp
+            && data.updatedAt is timestamp
+            && (!('image' in data) || (data.image is string && data.image.size() <= 2000));
+      }
+
+      allow get: if isValidId(postId);
+      // We allow unauthenticated users to view the list of posts. 
+      allow list: if true;
+
+      allow create: if isAdmin()
+                    && isValidId(postId)
+                    && incoming().keys().hasAll(['title', 'excerpt', 'content', 'category', 'time', 'createdAt', 'updatedAt'])
+                    && incoming().keys().size() == (7 + ('image' in incoming() ? 1 : 0))
+                    && incoming().createdAt == request.time
+                    && incoming().updatedAt == request.time
+                    && isValidPost(incoming());
+      
+      allow update: if isAdmin()
+                    && isValidId(postId)
+                    && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'excerpt', 'content', 'category', 'time', 'image', 'updatedAt'])
+                    && incoming().updatedAt == request.time
+                    && isValidPost(incoming());
+
+      allow delete: if isAdmin() && isValidId(postId);
+    }
+
+    // Tools Collection
+    match /tools/{toolId} {
+      function isValidTool(data) {
+        return data.title is string && data.title.size() > 0 && data.title.size() <= 200
+            && data.description is string && data.description.size() > 0 && data.description.size() <= 50000
+            && data.category is string && data.category.size() > 0 && data.category.size() <= 100
+            && data.createdAt is timestamp
+            && data.updatedAt is timestamp
+            && (!('url' in data) || (data.url is string && data.url.size() <= 2000))
+            && (!('copyText' in data) || (data.copyText is string && data.copyText.size() <= 200000));
+      }
+
+      allow get: if isValidId(toolId);
+      allow list: if true;
+
+      allow create: if isAdmin()
+                    && isValidId(toolId)
+                    && incoming().keys().hasAll(['title', 'description', 'category', 'createdAt', 'updatedAt'])
+                    && incoming().keys().size() == (5 + ('url' in incoming() ? 1 : 0) + ('copyText' in incoming() ? 1 : 0))
+                    && incoming().createdAt == request.time
+                    && incoming().updatedAt == request.time
+                    && isValidTool(incoming());
+      
+      allow update: if isAdmin()
+                    && isValidId(toolId)
+                    && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'description', 'category', 'url', 'copyText', 'updatedAt'])
+                    && incoming().updatedAt == request.time
+                    && isValidTool(incoming());
+
+      allow delete: if isAdmin() && isValidId(toolId);
+    }
+  }
+}

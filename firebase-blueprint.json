@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "Admin": {
+      "title": "Admin",
+      "description": "Represents an administrator user.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "The email of the admin."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp"
+        }
+      },
+      "required": ["email", "createdAt"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "A blog post.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "excerpt": { "type": "string" },
+        "content": { "type": "string" },
+        "category": { "type": "string" },
+        "time": { "type": "string" },
+        "image": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "excerpt", "content", "category", "time", "createdAt", "updatedAt"]
+    },
+    "Tool": {
+      "title": "Tool",
+      "description": "A tool or resource.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "url": { "type": "string", "description": "Optional" },
+        "copyText": { "type": "string", "description": "Optional" },
+        "category": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "description", "category", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/admins/{userId}": {
+      "schema": { "$ref": "#/entities/Admin" },
+      "description": "List of administrators"
+    },
+    "/posts/{postId}": {
+      "schema": { "$ref": "#/entities/Post" },
+      "description": "Blog posts"
+    },
+    "/tools/{toolId}": {
+      "schema": { "$ref": "#/entities/Tool" },
+      "description": "Tools and resources"
+    }
+  }
+}
